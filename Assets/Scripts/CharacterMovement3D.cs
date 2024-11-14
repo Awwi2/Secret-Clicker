@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class CharacterMovement3D : MonoBehaviour
 {
     [SerializeField] GameObject player;
     [SerializeField] GameObject playerCam;
     [SerializeField] GameObject screen;
+    [SerializeField] GameObject screenCam;
     public float speed = 12f;
     public float gravity = -10f;
     CharacterController controller;
@@ -17,6 +19,7 @@ public class CharacterMovement3D : MonoBehaviour
 
     [SerializeField] LayerMask interactionMask;
 
+    bool lockMovement = false;
     bool inPc = false;
 
     Vector3 velocity;
@@ -34,7 +37,7 @@ public class CharacterMovement3D : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!inPc)
+        if (!lockMovement)
         {
             grounded = Physics.CheckSphere(groundCheck.position, groundDistace, groundMask);
 
@@ -72,23 +75,49 @@ public class CharacterMovement3D : MonoBehaviour
                 {
                     if (hit.transform.gameObject.layer == 7)
                     {
+                        screenCam.SetActive(true);
                         player.SetActive(false);
-                        inPc = true;
-                        Cursor.lockState = CursorLockMode.None;
-                        screen.SetActive(true);
+                        lockMovement = true;
                     }
                 }
             }
         }
-        else
+        else if (inPc)
         {
             if (Input.GetKeyDown(KeyCode.X))
             {
-                Cursor.lockState = CursorLockMode.Locked;
                 player.SetActive(true);
                 inPc = false;
+                screenCam.SetActive(false);
                 screen.SetActive(false);
             }
         }
+    }
+    public void Test(ICinemachineCamera cam1, ICinemachineCamera cam2)
+    {
+        if(cam2 != null)
+        {
+            if (cam1.Name == "PCCam")
+            {
+                Invoke("startPc", 0.5f);
+            }
+            else if (cam2.Name == "PCCam")
+            {
+                Invoke("stopPc", 0.5f);
+            }
+        }
+    }
+
+    public void startPc()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        screen.SetActive(true);
+        inPc = true;
+    }
+
+    public void stopPc()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        lockMovement = false;
     }
 }
