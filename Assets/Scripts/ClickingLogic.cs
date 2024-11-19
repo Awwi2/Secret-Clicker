@@ -10,36 +10,33 @@ public class ClickingLogic : MonoBehaviour
     [SerializeField] float money = 0; //The abstract concept of currency in virtual world
     public float MPC = 1; //Money Per Click
     public float MPS = 0; //Money per Second
-    public List<PermanentUpgrade> permanentUpgrades = new List<PermanentUpgrade>();
+    public List<PermaUpgrades> permanentUpgrades;
+    [SerializeField] private GameObject permaUpgradePrefab;
+    [SerializeField] private GameObject upgradePanel;
+
+    private void Start()
+    {
+        permanentUpgrades = new List<PermaUpgrades>(Resources.LoadAll<PermaUpgrades>("PermaUpgrades"));
+        int verticalPos = 731;
+        foreach(PermaUpgrades b in permanentUpgrades)
+        {
+            GameObject.Instantiate(permaUpgradePrefab, new Vector3(671.2686f, verticalPos, 0) , transform.rotation, upgradePanel.transform);
+            verticalPos -= 85;
+        }
+    }
 
     public void CookieClicked()
     {
         money += MPC;
     }
+
     private void Update()
     {
         money += MPS * Time.deltaTime;
         text.text = "$ " + ((long)money).ToString();
-        foreach(PermanentUpgrade b in permanentUpgrades)
+        foreach(PermaUpgrades b in permanentUpgrades)
         {
             Debug.Log(b.title);
-        }
-    }
-
-    //Work in progress
-    public class PermanentUpgrade
-    {
-        public Button button;
-        public string title;
-        public int cost;
-        public float mpsModifier;
-
-        public PermanentUpgrade(Button button, string title, int cost, float mpsModifier)
-        {
-            this.button = button;
-            this.title = title;
-            this.cost = cost;
-            this.mpsModifier = mpsModifier;
         }
     }
 }
